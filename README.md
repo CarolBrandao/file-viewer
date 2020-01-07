@@ -1,4 +1,4 @@
-This project is a file viewer developed using react and redux. 
+This project is a file viewer developed using react. 
 
 
 ## Installation
