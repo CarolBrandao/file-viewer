@@ -51,20 +51,44 @@ function getChildren(tree){
   return children 
 }
 
+function AddNode(props){
+  let input
+  return(
+    <form onSubmit={e => {
+      e.preventDefault()
+      if (!input.value.trim()) {
+        return
+      }
+      props.onSubmit(R.append(input.value), props.array)
+      input.value = ''
+    }}>
+      <input type="text" ref={node => input = node} />
+      <button type="submit">
+        Add Node
+      </button>
+    </form>
+  )
+}
+
 export default function FileViewer() {
   const classes = useStyles();
   const [pathArray, setPathArray] = React.useState(initialState)
 
   const tree = getTree(pathArray)
+
   return (
-    <TreeView
-      className={classes.root}
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
-    >
-      {
-        getChildren(tree)
-      }
-    </TreeView>
+    <React.Fragment>
+     <AddNode array={pathArray} onSubmit={setPathArray} />
+      <TreeView
+        className={classes.root}
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+      >
+        {
+          getChildren(tree)
+        }
+      </TreeView>
+     
+    </React.Fragment>
   )
 }
