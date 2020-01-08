@@ -21,7 +21,7 @@ const initialState = [
 ]
 
 //get tree from array of strings
-function getTree(data){
+export function getTree(data){
   var result = {}
     
   data.forEach(p => p.split('/').reduce((o, k) => o[k] = o[k] || {}, result));
@@ -70,26 +70,36 @@ function AddNode(props){
   )
 }
 
+export function getEditedArray(element, newPath, pathArray){
+  return R.includes(element, pathArray)
+    ?  R.pipe(
+        R.without([element]),
+        R.append(newPath)
+      )(pathArray)
+    : R.map(el => R.replace(new RegExp(`^${element}/`), `${newPath}/`, el), pathArray)
+}
+
+export function getArrayAfterDeletion(element, pathArray){
+  return R.includes(element, pathArray)
+    ? R.without([element], pathArray) 
+    : R.reject( path => R.contains(`${element}/`,path), pathArray)
+}
+
 //handle right button menu click
 function handleClick(data, pathArray, setPathArray) {
   const element = data.target.parentElement.parentElement.id
+  let newArray
   if(data.action === 'delete'){
-    const element = data.target.parentElement.parentElement.id
-    const newArray = R.includes(element, pathArray)? R.without([element], pathArray) : R.reject( path => R.contains(`${element}/`,path), pathArray)
+    newArray = getArrayAfterDeletion(element, pathArray)
     setPathArray(newArray)
   }else if(data.action === 'edit'){
-    const newName= prompt("New node name:", element)
+    const newPath= prompt("New node name:", element)
 
-    if (newName !== null && newName !== "") {
-      const newArray = R.includes(element, pathArray)
-        ?  R.pipe(
-            R.without([element]),
-            R.append(newName)
-          )(pathArray)
-        : R.map(el => R.replace(new RegExp(`^${element}/`), `${newName}/`, el), pathArray)
-      setPathArray(newArray)
+    if (newPath !== null && newPath !== "") {
+      newArray = getEditedArray(element, newPath, pathArray)
     }
   }
+  setPathArray(newArray || pathArray)
 }
 
 //file viewer component
