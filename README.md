@@ -36,3 +36,9 @@ This project is a file viewer developed using react.
  Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 
+To run tests:
+
+    ```bash
+    yarn test
+    ```
+
