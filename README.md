@@ -38,7 +38,5 @@ This project is a file viewer developed using react.
 
 To run tests:
 
-    ```bash
     yarn test
-    ```
 
