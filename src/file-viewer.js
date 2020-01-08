@@ -1,6 +1,5 @@
 import React from 'react'
 import * as R from 'ramda'
-import { makeStyles } from '@material-ui/core/styles'
 import TreeView from '@material-ui/lab/TreeView'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
@@ -73,10 +72,23 @@ function AddNode(props){
 
 //handle right button menu click
 function handleClick(data, pathArray, setPathArray) {
+  const element = data.target.parentElement.parentElement.id
   if(data.action === 'delete'){
     const element = data.target.parentElement.parentElement.id
     const newArray = R.includes(element, pathArray)? R.without([element], pathArray) : R.reject( path => R.contains(`${element}/`,path), pathArray)
     setPathArray(newArray)
+  }else if(data.action === 'edit'){
+    const newName= prompt("New node name:", element)
+
+    if (newName !== null && newName !== "") {
+      const newArray = R.includes(element, pathArray)
+        ?  R.pipe(
+            R.without([element]),
+            R.append(newName)
+          )(pathArray)
+        : R.map(el => R.replace(new RegExp(`^${element}/`), `${newName}/`, el), pathArray)
+      setPathArray(newArray)
+    }
   }
 }
 
@@ -87,7 +99,7 @@ export default function FileViewer() {
   const tree = getTree(pathArray)
   return (
     <React.Fragment>
-     <AddNode array={pathArray} onSubmit={setPathArray} /> {/* Render  */}
+     <AddNode array={pathArray} onSubmit={setPathArray} /> 
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
@@ -103,6 +115,12 @@ export default function FileViewer() {
           onClick={(e, data) => handleClick(data, pathArray, setPathArray)}
         >
           Delete
+        </MenuItem>
+        <MenuItem 
+          data={{action: 'edit'}} 
+          onClick={(e, data) => handleClick(data, pathArray, setPathArray)}
+        >
+          Edit
         </MenuItem>
       </ContextMenu>
     </React.Fragment>
