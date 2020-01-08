@@ -3,14 +3,14 @@ import './app.css'
 import FileViewer from './file-viewer'
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
+    <React.Fragment>
+      <header className="app-header">
           File Viewer
       </header>
-      <div>
+      <div className="file-viewer">
         <FileViewer />
       </div>
-    </div>
+    </React.Fragment>
   )
 }
 

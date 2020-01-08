@@ -5,16 +5,10 @@ import TreeView from '@material-ui/lab/TreeView'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import TreeItem from '@material-ui/lab/TreeItem'
-
-const useStyles = makeStyles({
-  root: {
-    height: 216,
-    flexGrow: 1,
-    maxWidth: 400,
-  },
-})
+import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu"
 
 //Initial state of array of paths
+//The file viwer will render with these files
 
 const initialState = [
   "marvel/black_widow/bw.png",
@@ -36,21 +30,28 @@ function getTree(data){
 }
 
 //Iterate tree to render nodes
-function getChildren(tree){
+function getChildren(tree, fullPath){
   var children = []
- for (var k in tree)
-  {
+ for (var k in tree){
+
+    const path = `${fullPath}${k}`
     R.isEmpty(tree[k]) ? (
-      children.push(<TreeItem key={k} nodeId={k} label={k} />)
+      children.push(<ContextMenuTrigger key={`${path}-menu`} id="mainmenu"> 
+                      <TreeItem key={path} nodeId={path} id={path} label={k} />
+                    </ContextMenuTrigger>
+      )
     ):(
-      children.push(<TreeItem key={k} nodeId={k} label={k} >
-        {getChildren(tree[k])}
-      </TreeItem>)
+      children.push(<ContextMenuTrigger key={`${path}-menu`} id="mainmenu">
+                      <TreeItem key={path} nodeId={path}  id={path} label={k}>
+                        {getChildren(tree[k], `${path}/`)}
+                      </TreeItem>
+                    </ContextMenuTrigger>)
     )
   }
   return children 
 }
 
+//render input type text and submit button in order to add a new node in the tree
 function AddNode(props){
   let input
   return(
@@ -70,25 +71,40 @@ function AddNode(props){
   )
 }
 
+//handle right button menu click
+function handleClick(data, pathArray, setPathArray) {
+  if(data.action === 'delete'){
+    const element = data.target.parentElement.parentElement.id
+    const newArray = R.includes(element, pathArray)? R.without([element], pathArray) : R.reject( path => R.contains(`${element}/`,path), pathArray)
+    setPathArray(newArray)
+  }
+}
+
+//file viewer component
 export default function FileViewer() {
-  const classes = useStyles();
   const [pathArray, setPathArray] = React.useState(initialState)
 
   const tree = getTree(pathArray)
-
   return (
     <React.Fragment>
-     <AddNode array={pathArray} onSubmit={setPathArray} />
+     <AddNode array={pathArray} onSubmit={setPathArray} /> {/* Render  */}
       <TreeView
-        className={classes.root}
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
       >
         {
-          getChildren(tree)
+          getChildren(tree, '')
         }
       </TreeView>
-     
+      {/*Menu jsx*/}
+       <ContextMenu id="mainmenu">
+        <MenuItem 
+          data={{action: 'delete'}} 
+          onClick={(e, data) => handleClick(data, pathArray, setPathArray)}
+        >
+          Delete
+        </MenuItem>
+      </ContextMenu>
     </React.Fragment>
   )
 }
