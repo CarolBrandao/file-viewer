@@ -34,17 +34,18 @@ function getChildren(tree, fullPath){
  for (var k in tree){
 
     const path = `${fullPath}${k}`
+
     R.isEmpty(tree[k]) ? (
       children.push(<ContextMenuTrigger key={`${path}-menu`} id="mainmenu"> 
-                      <TreeItem key={path} nodeId={path} id={path} label={k} />
-                    </ContextMenuTrigger>
+        <TreeItem key={path} nodeId={path} id={path} label={k} />
+      </ContextMenuTrigger>
       )
     ):(
       children.push(<ContextMenuTrigger key={`${path}-menu`} id="mainmenu">
-                      <TreeItem key={path} nodeId={path}  id={path} label={k}>
-                        {getChildren(tree[k], `${path}/`)}
-                      </TreeItem>
-                    </ContextMenuTrigger>)
+        <TreeItem key={path} nodeId={path}  id={path} label={k}>
+          {getChildren(tree[k], `${path}/`)}
+        </TreeItem>
+      </ContextMenuTrigger>)
     )
   }
   return children 
@@ -82,7 +83,7 @@ export function getEditedArray(element, newPath, pathArray){
 export function getArrayAfterDeletion(element, pathArray){
   return R.includes(element, pathArray)
     ? R.without([element], pathArray) 
-    : R.reject( path => R.contains(`${element}/`,path), pathArray)
+    : R.reject( path => R.test(new RegExp(`^${element}/`), path), pathArray)
 }
 
 //handle right button menu click
@@ -91,7 +92,6 @@ function handleClick(data, pathArray, setPathArray) {
   let newArray
   if(data.action === 'delete'){
     newArray = getArrayAfterDeletion(element, pathArray)
-    setPathArray(newArray)
   }else if(data.action === 'edit'){
     const newPath= prompt("New node name:", element)
 
